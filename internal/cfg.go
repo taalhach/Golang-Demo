@@ -38,8 +38,5 @@ func loadConfigs() (*configs.MainConfig, error) {
 	// make connection
 	DB = MainConfigs.Database.MustGetDB()
 
-	//var size string
-	//DB.Raw("select pg_size_pretty(pg_database_size('velocity_works'))").Scan(&size)
-	//fmt.Println(size)
 	return MainConfigs, err
 }

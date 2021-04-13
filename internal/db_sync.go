@@ -2,15 +2,19 @@ package internal
 
 import (
 	"fmt"
+	"gorm.io/gorm"
+	"os"
+
 	"github.com/buger/jsonparser"
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
 	"github.com/taalhach/Golang-Demo/internal/models"
-	"gorm.io/gorm"
-	"os"
 )
 
-const dbUrl = "https://data.cityofnewyork.us/api/views/7yay-m4ae/rows.json"
+const (
+	dbUrl   = "https://data.cityofnewyork.us/api/views/7yay-m4ae/rows.json"
+	dataKey = "data"
+)
 
 var dbSyncCmd = &cobra.Command{
 	Use:   "sync_db",
@@ -25,10 +29,16 @@ var dbSyncCmd = &cobra.Command{
 		}
 		client := resty.New()
 		//.SetTimeout(1 * time.Second)
-		resp, _ := client.R().SetHeaders(map[string]string{"Accept": "application/json"}).Get(dbUrl)
-		//fmt.Println(string(resp.Body()), err)
-		data, _, _, err := jsonparser.Get(resp.Body(), "data")
-		fmt.Println(err)
+		resp, err := client.R().SetHeaders(map[string]string{"Accept": "application/json"}).Get(dbUrl)
+		if err != nil {
+			fmt.Printf("failed to fetch data from %v error occured %v", dbUrl, err)
+			os.Exit(1)
+		}
+		data, _, _, err := jsonparser.Get(resp.Body(), dataKey)
+		if err != nil {
+			fmt.Printf("failed to extract data object from response error occured %v", err)
+			os.Exit(1)
+		}
 		session := DB.Session(&gorm.Session{})
 
 		_, err = jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
@@ -44,6 +54,8 @@ var dbSyncCmd = &cobra.Command{
 
 		// now commit db session to save data
 		session.Commit()
+
+		fmt.Println("extracted data successfully")
 	},
 }
 
@@ -53,39 +65,33 @@ func sanitizeExpenseElement(data []byte, session *gorm.DB) error {
 		err     error
 	)
 	i := 0
-	_, err = jsonparser.ArrayEach(data, func(currentData []byte, dataType jsonparser.ValueType, offset int, err error) {
-		fmt.Println(i, string(currentData))
+	_, err = jsonparser.ArrayEach(data, func(index []byte, dataType jsonparser.ValueType, offset int, err error) {
 		switch i {
+		case 1:
+			expense.Uuid, err = jsonparser.ParseString(index)
 		case 8:
-			//data, _, _, _ := jsonparser.Get(currentData)
-			//fmt.Println("whats that ", string(data))
-			_, t, _, err := jsonparser.Get(currentData)
-			fmt.Println("data ", err, t)
-			fmt.Print(jsonparser.GetUnsafeString(currentData))
-			fmt.Printf(" date %v \n", i)
+			expense.PublicationDate, err = jsonparser.ParseString(index)
 		case 9:
-			_, err = jsonparser.GetInt(currentData)
-			fmt.Printf(" year %v \n", i)
+			expense.FiscalYear, err = jsonparser.ParseString(index)
 		case 10:
-			expense.AgencyCode, err = jsonparser.GetUnsafeString(currentData)
+			expense.AgencyCode, err = jsonparser.ParseString(index)
 		case 11:
-			fmt.Println(jsonparser.Get(currentData))
-			expense.AgencyName, err = jsonparser.GetUnsafeString(currentData)
+			expense.AgencyName, err = jsonparser.ParseString(index)
 		case 12:
-			expense.TotalFund, err = jsonparser.GetFloat(currentData)
+			expense.TotalFund, err = jsonparser.ParseString(index)
 		case 13:
-			expense.CityFund, err = jsonparser.GetFloat(currentData)
+			expense.CityFund, err = jsonparser.ParseString(index)
 		case 14:
 			var t jsonparser.ValueType
-			_, t, _, err = jsonparser.Get(currentData)
-			if t != jsonparser.Null {
-				expense.Remark, err = jsonparser.GetString(currentData)
+			_, t, _, err = jsonparser.Get(index)
+			if err == nil && t != jsonparser.Null {
+				expense.Remark, err = jsonparser.ParseString(index)
 			}
 
 		}
 		i++
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("failed to extract a row: %v, skipping this row\n", err)
 			return
 		}
 	})
@@ -93,8 +99,7 @@ func sanitizeExpenseElement(data []byte, session *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-
-	session.Create(&expense)
+	session.Where(&models.Expense{Uuid: expense.Uuid}).FirstOrCreate(&expense)
 	return nil
 }
 
