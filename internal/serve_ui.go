@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/taalhach/Golang-Demo/internal/common"
 	"github.com/taalhach/Golang-Demo/internal/ui_handlers"
 	"os"
 
@@ -28,6 +29,17 @@ var serveUi = &cobra.Command{
 		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 			Format: fmt.Sprintf("method=${method} uri=${uri} status=${status} time=${latency_human}"),
 		}))
+
+		e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				cc := &common.CustomContext{
+					Context:     c,
+					DB:          DB,
+					MainConfigs: MainConfigs,
+				}
+				return h(cc)
+			}
+		})
 
 		e.GET("/", ui_handlers.RootHandler)
 

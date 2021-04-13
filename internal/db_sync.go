@@ -40,6 +40,7 @@ var dbSyncCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		session := DB.Session(&gorm.Session{})
+		session = session.Begin()
 
 		_, err = jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
 			if err := sanitizeExpenseElement(value, session); err != nil {
