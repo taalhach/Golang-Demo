@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/buger/jsonparser v1.1.1
 	github.com/go-resty/resty/v2 v2.4.0
+	github.com/labstack/echo/v4 v4.2.2
 	github.com/nanitor/goini v0.0.0-20190426143638-a89f3556031d
 	github.com/spf13/cobra v1.1.3
 	gorm.io/driver/postgres v1.0.8
