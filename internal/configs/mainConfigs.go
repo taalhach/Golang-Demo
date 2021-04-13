@@ -1,15 +1,24 @@
 package configs
 
-import ini "github.com/nanitor/goini"
+import (
+	"fmt"
+	ini "github.com/nanitor/goini"
+)
 
 type MainConfig struct {
-	Database *DatabaseConfig
+	TemplatesDirectory string
+	Database           *DatabaseConfig
 }
 
 func LoadMainConfig(dict ini.Dict) (*MainConfig, error) {
 	var err error
 
 	ret := &MainConfig{}
+
+	ret.TemplatesDirectory = dict.GetStringDef("main", "templates_directory", "")
+	if ret.TemplatesDirectory == "" {
+		return nil, fmt.Errorf("templates_directory is empty")
+	}
 
 	ret.Database, err = DatabaseConfigsFromDict(dict)
 	if err != nil {
