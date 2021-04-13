@@ -10,4 +10,18 @@ type CustomContext struct {
 	echo.Context
 	DB          *gorm.DB
 	MainConfigs *configs.MainConfig
+	dbSession   *gorm.DB
+}
+
+func (cc *CustomContext) DbSession() *gorm.DB {
+	if cc.dbSession == nil {
+		cc.dbSession = NewSession(cc.DB)
+	}
+
+	return cc.dbSession
+}
+
+func NewSession(db *gorm.DB) *gorm.DB {
+	session := db.Session(&gorm.Session{})
+	return session.Begin()
 }
