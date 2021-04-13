@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+</head>
+<body>
+<div id="login">
+    <div class="container login_container">
+        <div class="row mb-5 mt-5">
+            <div class="col text-center">
+                <h2>Expense Actuals</h2>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col">
+                <div class="panel_on-dark">
+                    <p>This dataset contains agency summary level data for total and city funded expense actuals. The dollar amount fields are rounded to thousands. Data are from FY 2002 and updated once a year after annual expense numbers are final. Usually, they are updated along with the first quarter financial plan between October and December each year.</p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Agency Name</th>
+                            <th scope="col">Code</th>
+                            <th scope="col">Total Funds</th>
+                            <th scope="col">City Funds</th>
+                            <th scope="col">Fiscal Year</th>
+                            <th scope="col">Publication Date</th>
+                            <th scope="col">Remark</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{ range . }}
+                        <tr>
+                            <th>{{ .Id }}</th>
+                            <td>{{ .AgencyName }}</td>
+                            <td>{{ .AgencyCode }}</td>
+                            <td>{{ .TotalFund }}</td>
+                            <td>{{ .CityFund }}</td>
+                            <td>{{ .FiscalYear }}</td>
+                            <td>{{ .PublicationDate }}</td>
+                            <td>{{ .Remark }}</td>
+                        </tr>
+                        {{ end }}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

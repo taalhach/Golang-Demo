@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/taalhach/Golang-Demo/internal/common"
 	"github.com/taalhach/Golang-Demo/internal/ui_handlers"
+	"html/template"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -25,6 +26,13 @@ var serveUi = &cobra.Command{
 		}
 
 		e := echo.New()
+		pattern := fmt.Sprintf("%s/expenses_list.html", MainConfigs.TemplatesDirectory)
+		renderer := &TemplateRenderer{
+			templates: template.Must(template.ParseGlob(pattern)),
+		}
+
+		// now attach template renderer
+		e.Renderer = renderer
 
 		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 			Format: fmt.Sprintf("method=${method} uri=${uri} status=${status} time=${latency_human}"),
@@ -42,6 +50,7 @@ var serveUi = &cobra.Command{
 		})
 
 		e.GET("/", ui_handlers.RootHandler)
+		e.GET("/expenses_list", ui_handlers.ExpensesList)
 
 		e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", port)))
 	},
