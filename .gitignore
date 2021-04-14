@@ -11,7 +11,11 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 .idea
-cmd/velocity-worker/velocity-worker
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# project files
+
+cmd/velocity-worker/velocity-worker
+bin
