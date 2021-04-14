@@ -35,7 +35,7 @@ var serveUi = &cobra.Command{
 		e.Renderer = renderer
 
 		e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-			Format: fmt.Sprintf("method=${method} uri=${uri} status=${status} time=${latency_human}"),
+			Format: fmt.Sprintf("method=${method} uri=${uri} status=${status} time=${latency_human}\n"),
 		}))
 
 		e.Use(func(h echo.HandlerFunc) echo.HandlerFunc {
