@@ -8,9 +8,9 @@ import (
 )
 
 type TemplateRenderer struct {
-	templates *template.Template
+	*template.Template
 }
 
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
+	return t.ExecuteTemplate(w, name, data)
 }

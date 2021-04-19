@@ -28,7 +28,7 @@ var serveUi = &cobra.Command{
 		e := echo.New()
 		pattern := fmt.Sprintf("%s/expenses_list.html", MainConfigs.TemplatesDirectory)
 		renderer := &TemplateRenderer{
-			templates: template.Must(template.ParseGlob(pattern)),
+			template.Must(template.ParseGlob(pattern)),
 		}
 
 		// now attach template renderer
